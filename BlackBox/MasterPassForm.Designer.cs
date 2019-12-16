@@ -74,6 +74,7 @@
             this.Name = "MasterPassForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MasterPassForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MasterPassForm_FormClosing);
             this.Load += new System.EventHandler(this.MasterPassForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

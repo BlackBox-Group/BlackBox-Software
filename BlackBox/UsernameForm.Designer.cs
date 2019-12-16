@@ -74,6 +74,7 @@
             this.Name = "UsernameForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "UsernameForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UsernameForm_FormClosing);
             this.Load += new System.EventHandler(this.UsernameForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

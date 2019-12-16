@@ -75,5 +75,11 @@ namespace BlackBox
             }
             Close();
         }
+
+        private void TitleAddForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true; // this cancels the close event.
+        }
     }
 }

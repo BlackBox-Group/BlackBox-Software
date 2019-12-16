@@ -31,5 +31,11 @@ namespace BlackBox
         {
 
         }
+
+        private void ConnectRFIDForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true; // this cancels the close event.
+        }
     }
 }

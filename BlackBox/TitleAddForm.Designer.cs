@@ -126,6 +126,7 @@
             this.Name = "TitleAddForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TitleAddForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TitleAddForm_FormClosing);
             this.Load += new System.EventHandler(this.TitleAddForm_Load);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();

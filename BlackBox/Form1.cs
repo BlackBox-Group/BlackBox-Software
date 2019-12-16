@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 
 namespace BlackBox
@@ -76,11 +77,30 @@ namespace BlackBox
                 selectedPort = comboBox1.GetItemText(comboBox1.SelectedItem);
             }
 
-            port = new SerialPort(selectedPort, 9600);
-            port.Open();
-            port.Write("#START\n");
+            port = new SerialPort
+            {
+                PortName = selectedPort,
+                BaudRate = 9600,
+                NewLine = "\r\n",
+                RtsEnable = true,
+                DtrEnable = true
+            };
 
-            return true;
+            try
+            {
+                port.Open();
+                port.Write("#START\n");
+                isConnected = true;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to open port: ");
+                Console.WriteLine(e);
+
+                return false;
+            }
         }
 
         private void initSerialControls() {
@@ -149,7 +169,7 @@ namespace BlackBox
             }
             else if (serialCommand == "username?")
             {
-                openRFIDform.Close();
+                openRFIDform.Hide();
                 UsernameForm openUsernameForm = new UsernameForm(this);
                 openUsernameForm.StartPosition = FormStartPosition.CenterScreen;
                 openUsernameForm.Show();
@@ -164,14 +184,18 @@ namespace BlackBox
             else if (serialCommand == "cardexists")
             {
                 openCardexistForm.Show();
-                openRFIDform.Close();
+                openRFIDform.Hide();
             }
             else if (serialCommand == "masterpass?")
             {
-                openRFIDform.Close();
+                openRFIDform.Hide();
                 MasterPassForm openMasterPassForm = new MasterPassForm(this);
                 openMasterPassForm.StartPosition = FormStartPosition.CenterScreen;
                 openMasterPassForm.Show();
+            }
+            else if (serialCommand == "usercreated")
+            {
+                MessageBox.Show("Success", "User has been created!");
             }
             else if (serialCommand == "nosuchcard")
             {
@@ -204,7 +228,7 @@ namespace BlackBox
             }
             /*else if (serialCommand == "userlogin")
             {
-                openRFIDform.Close();
+                openRFIDform.Hide();
                 UsernameForm openUsernameForm = new UsernameForm(this);
                 openUsernameForm.StartPosition = FormStartPosition.CenterScreen;
                 openUsernameForm.Show();
@@ -248,33 +272,36 @@ namespace BlackBox
         private void button2_Click(object sender, EventArgs e)
         {
             foreach (string portName in ports) {
-                try {
-                    port = new SerialPort(portName, 9600);
-                    port.NewLine = "\n";
-                    port.Open();
-                    Thread.Sleep(100);
-                    port.Write("ping_blackbox\n"); 
-                    Console.WriteLine($"Awaiting {portName}...");
-                    // await Task.Run( () => Thread.Sleep(2000) );
-                    Thread.Sleep(2000);
-                    Console.WriteLine("Done waiting");
+                try
+                {
+                    if (connectToArduino(portName))
+                    {
+                        port.Write("ping_blackbox\n");
+                        // string response = port.ReadLine();
+                        // await Task.Run( () => Thread.Sleep(2000) );
+                        Thread.Sleep(200);
+                        Console.WriteLine("Done waiting");
+    
+                        Console.WriteLine(port.BytesToRead);
+                        if (port.BytesToRead != 0)
+                        {
+                            string response = port.ReadLine();
 
-                    Console.WriteLine(port.BytesToRead);
-                    if (port.BytesToRead != 0) {
-                        string response = port.ReadLine();
+                            Console.WriteLine(response);
 
-                        Console.WriteLine(response);
-
-                        if (response == "pong_blackbox") {
-                            MessageBox.Show($"Connection is set to {portName}",
-                                "Successful",
-                                MessageBoxButtons.OK);
-                            initSerialControls();
-                            return;
+                            if (response == "pong_blackbox")
+                            {
+                                MessageBox.Show($"Connection is set to {portName}",
+                                    "Successful",
+                                    MessageBoxButtons.OK);
+                                Console.WriteLine("OK");
+                                initSerialControls();
+                                return;
+                            }
                         }
                     }
-                    
-                    port.Close();
+
+                    disconnectFromArduino();
                 }
                 catch(Exception ex) {
                     Console.WriteLine($"{portName} just died");
@@ -304,6 +331,14 @@ namespace BlackBox
         private void label1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (isConnected)
+            {
+                writeToSerial("resetcards\n");
+            }
         }
     }
 }

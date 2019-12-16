@@ -51,6 +51,7 @@
             this.Name = "CardexistForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "CardexistForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CardexistForm_FormClosing);
             this.Load += new System.EventHandler(this.CardexistForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

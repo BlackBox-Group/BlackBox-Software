@@ -66,6 +66,7 @@
             this.Name = "ConnectRFIDForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ConnectRFIDForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ConnectRFIDForm_FormClosing);
             this.Load += new System.EventHandler(this.ConnectRFIDForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

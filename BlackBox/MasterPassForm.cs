@@ -41,5 +41,11 @@ namespace BlackBox
             parent.writeToSerial($"masterpass {masterpassText}");
             Close();
         }
+
+        private void MasterPassForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true; // this cancels the close event.
+        }
     }
 }

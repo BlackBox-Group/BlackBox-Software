@@ -41,5 +41,11 @@ namespace BlackBox
             parent.writeToSerial($"username {usernameText}");
             Close();
         }
+
+        private void UsernameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true; // this cancels the close event.
+        }
     }
 }
