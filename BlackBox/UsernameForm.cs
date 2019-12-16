@@ -12,9 +12,12 @@ namespace BlackBox
 {
     public partial class UsernameForm : Form
     {
-        public UsernameForm()
+        private Form1 parent;
+        private string usernameText;
+        public UsernameForm(Form1 par)
         {
             InitializeComponent();
+            parent = par;
         }
 
         private void UsernameForm_Load(object sender, EventArgs e)
@@ -32,12 +35,11 @@ namespace BlackBox
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        public void button1_Click(object sender, EventArgs e)
         {
-            /* if (isConnected)
-            {
-                port.Write("username" + textBox1.Text + "\n");
-            } */
+            usernameText = textBox1.Text;
+            parent.writeToSerial($"username {usernameText}");
+            Close();
         }
     }
 }

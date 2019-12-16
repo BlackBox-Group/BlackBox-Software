@@ -12,9 +12,12 @@ namespace BlackBox
 {
     public partial class MasterPassForm : Form
     {
-        public MasterPassForm()
+        private Form1 parent;
+        private string masterpassText;
+        public MasterPassForm(Form1 par)
         {
             InitializeComponent();
+            parent = par;
         }
 
         private void MasterPassForm_Load(object sender, EventArgs e)
@@ -29,12 +32,14 @@ namespace BlackBox
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-
+            textBox1.PasswordChar = '*';
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            masterpassText = textBox1.Text;
+            parent.writeToSerial($"masterpass {masterpassText}");
+            Close();
         }
     }
 }

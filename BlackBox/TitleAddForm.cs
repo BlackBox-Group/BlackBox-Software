@@ -12,9 +12,15 @@ namespace BlackBox
 {
     public partial class TitleAddForm : Form
     {
-        public TitleAddForm()
+        private Form1 parent;
+        private string titleText;
+        private string passwordText;
+        private string URLText;
+
+        public TitleAddForm(Form1 par)
         {
             InitializeComponent();
+            parent = par;
         }
 
         private void TitleAddForm_Load(object sender, EventArgs e)
@@ -44,7 +50,7 @@ namespace BlackBox
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-
+            textBox2.PasswordChar = '*';
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
@@ -54,7 +60,20 @@ namespace BlackBox
 
         private void button1_Click(object sender, EventArgs e)
         {
+            titleText = textBox1.Text;
+            passwordText = textBox2.Text;
+            URLText = textBox3.Text;
+            parent.writeToSerial($"service {titleText} {passwordText} {URLText}");
+            
+           if ((textBox1.Text.Length > 0) && (textBox2.Text.Length > 0) && (textBox3.Text.Length > 0))
+            {
+                ListViewItem item1 = new ListViewItem(textBox1.Text);
+                item1.SubItems.Add(textBox2.Text);
+                item1.SubItems.Add(textBox3.Text);
 
+                parent.listView1.Items.AddRange(new ListViewItem[] { item1 });
+            }
+            Close();
         }
     }
 }

@@ -8,6 +8,8 @@ namespace BlackBox
 {
     static class Program
     {
+        public static object Form { get; internal set; }
+
         /// <summary>
         /// Главная точка входа для приложения.
         /// </summary>

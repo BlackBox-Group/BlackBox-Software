@@ -14,15 +14,15 @@ namespace BlackBox
 {
     public partial class Form1 : Form
     {
-        bool isConnected = false;
-        String[] ports;
-        SerialPort port;
-        Thread serialThread;
+        public bool isConnected = false;
+        public string usernameText;
+        public SerialPort port;
 
-        // String serialCommand;
+        private String[] ports;
+        private Thread serialThread;
 
-        ConnectRFIDForm openRFIDform;
-        CardexistForm openCardexistForm;
+        private ConnectRFIDForm openRFIDform;
+        private CardexistForm openCardexistForm;
         
 
         public Form1()
@@ -67,27 +67,43 @@ namespace BlackBox
         {
             ports = SerialPort.GetPortNames();
         }
-        private void connectToArduino()
+        private bool connectToArduino(string selectedPort = null)
         {
-            isConnected = true;
-            string selectedPort = comboBox1.GetItemText(comboBox1.SelectedItem);
-            port = new SerialPort(selectedPort, 9600, Parity.None, 8, StopBits.One);
+            if (isConnected) return false;
+            
+            if (selectedPort == null) 
+            {
+                selectedPort = comboBox1.GetItemText(comboBox1.SelectedItem);
+            }
+
+            port = new SerialPort(selectedPort, 9600);
             port.Open();
             port.Write("#START\n");
+
+            return true;
+        }
+
+        private void initSerialControls() {
             button1.Text = "Disconnect";
             enableControls();
 
             serialThread = new Thread(checkSerial);
             serialThread.Start();
+
+            isConnected = true;
         }
 
-        private void disconnectFromArduino()
+        private bool disconnectFromArduino()
         {
-            isConnected = false;
+            if (!isConnected) return false;
+
             port.Write("#STOP\n");
             port.Close();
             button1.Text = "Connect";
             disableControls();
+
+            isConnected = false;
+            return true;
         }
         private void enableControls()
         {
@@ -98,11 +114,19 @@ namespace BlackBox
             groupBox1.Enabled = false;
         }
 
+        public bool writeToSerial(string str) {
+            if (isConnected) {
+                port.Write(str);
+                return true; 
+            }
+            else return false;
+        }
+
         private void checkSerial()
         {
             while (true)
             {
-                Console.WriteLine("Avaiting serial line...");
+                Console.WriteLine("Awaiting serial line...");
                 String serialCommand = port.ReadLine();
                 Console.WriteLine($"Got: \"{serialCommand}\"");
                 
@@ -115,20 +139,25 @@ namespace BlackBox
             }
         }
 
-        private void analyzeCommand(String serialCommand) {
-            Console.WriteLine("Test1");
+        private void analyzeCommand(String serialCommand)
+        {
             if (serialCommand.StartsWith("#")) return;
-            Console.WriteLine("Test2");
 
             if (serialCommand == "putRFID")
             {
-                Console.WriteLine("Test3");
                 openRFIDform.Show();
             }
             else if (serialCommand == "username?")
             {
                 openRFIDform.Close();
-                UsernameForm openUsernameForm = new UsernameForm();
+                UsernameForm openUsernameForm = new UsernameForm(this);
+                openUsernameForm.StartPosition = FormStartPosition.CenterScreen;
+                openUsernameForm.Show();
+            }
+            else if (serialCommand == "userincorrect")
+            {
+                MessageBox.Show("The user name is incorrect!", "Error");
+                UsernameForm openUsernameForm = new UsernameForm(this);
                 openUsernameForm.StartPosition = FormStartPosition.CenterScreen;
                 openUsernameForm.Show();
             }
@@ -137,18 +166,60 @@ namespace BlackBox
                 openCardexistForm.Show();
                 openRFIDform.Close();
             }
-            else {
-                port.Write("# wtf what is this\n");
+            else if (serialCommand == "masterpass?")
+            {
+                openRFIDform.Close();
+                MasterPassForm openMasterPassForm = new MasterPassForm(this);
+                openMasterPassForm.StartPosition = FormStartPosition.CenterScreen;
+                openMasterPassForm.Show();
             }
+            else if (serialCommand == "nosuchcard")
+            {
+                MessageBox.Show("No such user", "Error");
+            }
+            else if (serialCommand.StartsWith("username"))
+            {
+                usernameText = serialCommand.Substring(9);
+                // send usernameText to show in label "Welcome to the BlackBox, "
+            }
+            
+            else if (serialCommand == "masterincorrect")
+            {
+                MessageBox.Show("Masterpass is incorrect!", "Error");
 
-            //port.Write("username" ) - dopisat nada
+                MasterPassForm openMasterPassForm = new MasterPassForm(this);
+                openMasterPassForm.StartPosition = FormStartPosition.CenterScreen;
+                openMasterPassForm.Show();
+            }
+            else if (serialCommand == "service?")
+            {
+                TitleAddForm openTitleform = new TitleAddForm(this);
+                openTitleform.StartPosition = FormStartPosition.CenterScreen;
+                openTitleform.Show();
+            }
+            else if (serialCommand.StartsWith("service"))
+            {
+                string serviceText = serialCommand.Substring(8);
+                // send serviceText to show in combobox
+            }
+            /*else if (serialCommand == "userlogin")
+            {
+                openRFIDform.Close();
+                UsernameForm openUsernameForm = new UsernameForm(this);
+                openUsernameForm.StartPosition = FormStartPosition.CenterScreen;
+                openUsernameForm.Show();
+            } */
+            else
+            {
+                writeToSerial("# wtf what is this\n");
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             if (isConnected)
             {
-                port.Write("usercreate\n");
+                writeToSerial("usercreate\n");
             }
         }
 
@@ -156,15 +227,7 @@ namespace BlackBox
         {
             if (isConnected)
            {
-               port.Write("addService\n");
-
-               string service = port.ReadLine();
-               if (service == "service?\n")
-               {
-                    TitleAddForm openTitleform = new TitleAddForm();
-                    openTitleform.StartPosition = FormStartPosition.CenterScreen;
-                    openTitleform.Show();
-                }
+               writeToSerial("addService\n");
            }
         }
         private void Form1_Load(object sender, EventArgs e)
@@ -178,6 +241,67 @@ namespace BlackBox
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            foreach (string portName in ports) {
+                try {
+                    port = new SerialPort(portName, 9600);
+                    port.NewLine = "\n";
+                    port.Open();
+                    Thread.Sleep(100);
+                    port.Write("ping_blackbox\n"); 
+                    Console.WriteLine($"Awaiting {portName}...");
+                    // await Task.Run( () => Thread.Sleep(2000) );
+                    Thread.Sleep(2000);
+                    Console.WriteLine("Done waiting");
+
+                    Console.WriteLine(port.BytesToRead);
+                    if (port.BytesToRead != 0) {
+                        string response = port.ReadLine();
+
+                        Console.WriteLine(response);
+
+                        if (response == "pong_blackbox") {
+                            MessageBox.Show($"Connection is set to {portName}",
+                                "Successful",
+                                MessageBoxButtons.OK);
+                            initSerialControls();
+                            return;
+                        }
+                    }
+                    
+                    port.Close();
+                }
+                catch(Exception ex) {
+                    Console.WriteLine($"{portName} just died");
+                    Console.WriteLine(ex);
+                }; 
+            }
+
+            Console.WriteLine("No ports responded :(");
+            MessageBox.Show("Make sure your device is connected",
+                            "Unable to detect device",
+                            MessageBoxButtons.OK);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (isConnected)
+            {
+                writeToSerial("username\n");
+            }
+        }
+
+        public void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }
