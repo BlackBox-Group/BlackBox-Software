@@ -24,7 +24,9 @@ namespace BlackBox
 
         private ConnectRFIDForm openRFIDform;
         private CardexistForm openCardexistForm;
-        
+        private ShowPassForm spf;
+
+
 
         public Form1()
         {
@@ -240,13 +242,12 @@ namespace BlackBox
             else if (serialCommand.StartsWith("service"))
             {
                 //openRFIDform.Hide();
-                string serviceTitle = serialCommand.Substring(serialCommand.IndexOf(' '), serialCommand.IndexOf(':') - serialCommand.IndexOf(' '));
+                string serviceTitle = serialCommand.Substring(serialCommand.IndexOf(' ') + 1, serialCommand.IndexOf(':') - serialCommand.IndexOf(' ') - 1);
                 serviceTitle = serviceTitle.Replace('_', ' ');
                 string serviceUrl = serialCommand.Substring(serialCommand.IndexOf(':') + 1);
 
 
                 ListViewItem item1 = new ListViewItem(serviceTitle);
-                item1.SubItems.Add("");
                 item1.SubItems.Add(serviceUrl);
 
                 listView1.Items.AddRange(new ListViewItem[] { item1 });
@@ -254,6 +255,17 @@ namespace BlackBox
             else if (serialCommand == "loginfail")
             {
                 MessageBox.Show("Something went wrong during login. Is your password correct?", "Oops!");
+            }
+            else if (serialCommand == "passwordfail")
+            {
+                spf.Close();
+                openRFIDform.Close();
+                MessageBox.Show("Something went wrong during password request", "Oops!");
+            }
+            else if (serialCommand.StartsWith("password"))
+            {
+                openRFIDform.Close();
+                spf.displayPassword(serialCommand.Substring( serialCommand.IndexOf(' ') + 1).Replace(' ', '_'));
             }
             /*else if (serialCommand == "userlogin")
             {
@@ -361,7 +373,7 @@ namespace BlackBox
 
         public void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -374,6 +386,41 @@ namespace BlackBox
             if (isConnected)
             {
                 writeToSerial("resetcards\n");
+            }
+        }
+
+        private void listView1_MouseDown(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                var info = listView1.HitTest(e.X, e.Y);
+                var row = info.Item.Index;
+                var col = info.Item.SubItems.IndexOf(info.SubItem);
+                var value = info.Item.SubItems[col].Text;
+
+                if (col == 0)
+                {
+                    //MessageBox.Show($"R{row}:C{col} val '{value}'");
+                    if (spf == null)
+                    {
+                        spf = new ShowPassForm(this, value)
+                        {
+                            TopMost = true
+                        };
+                    }
+                    else
+                    {
+                        spf.Close();
+                        spf.changeLabel(value);
+                    }
+
+                    spf.StartPosition = FormStartPosition.CenterScreen;
+                    spf.Show();
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Exception in MouseDown");
             }
         }
     }
