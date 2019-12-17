@@ -38,7 +38,7 @@ namespace BlackBox
         private void button1_Click(object sender, EventArgs e)
         {
             masterpassText = textBox1.Text;
-            parent.writeToSerial($"masterpass {masterpassText}");
+            parent.writeToSerial($"masterpass {masterpassText}\n");
             Close();
         }
 

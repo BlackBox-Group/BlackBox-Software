@@ -63,12 +63,15 @@ namespace BlackBox
             titleText = textBox1.Text;
             passwordText = textBox2.Text;
             URLText = textBox3.Text;
-            parent.writeToSerial($"service {titleText} {passwordText} {URLText}");
+
+            titleText = titleText.Replace(' ', '_');
+            parent.writeToSerial($"service {titleText}:{URLText} {passwordText}\n");
             
            if ((textBox1.Text.Length > 0) && (textBox2.Text.Length > 0) && (textBox3.Text.Length > 0))
             {
                 ListViewItem item1 = new ListViewItem(textBox1.Text);
-                item1.SubItems.Add(textBox2.Text);
+                // item1.SubItems.Add(textBox2.Text);
+                item1.SubItems.Add("");
                 item1.SubItems.Add(textBox3.Text);
 
                 parent.listView1.Items.AddRange(new ListViewItem[] { item1 });

@@ -38,7 +38,7 @@ namespace BlackBox
         public void button1_Click(object sender, EventArgs e)
         {
             usernameText = textBox1.Text;
-            parent.writeToSerial($"username {usernameText}");
+            parent.writeToSerial($"username {usernameText}\n");
             Close();
         }
 

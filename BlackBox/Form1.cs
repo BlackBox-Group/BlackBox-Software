@@ -55,11 +55,7 @@ namespace BlackBox
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (!isConnected)
-            {
-                connectToArduino();
-            }
-            else
+            if (isConnected)
             {
                 disconnectFromArduino();
             }
@@ -136,10 +132,12 @@ namespace BlackBox
 
         public bool writeToSerial(string str) {
             if (isConnected) {
+                Console.WriteLine($"Sending '{str}'");
                 port.Write(str);
                 return true; 
             }
-            else return false;
+            
+            return false;
         }
 
         private void checkSerial()
@@ -147,15 +145,23 @@ namespace BlackBox
             while (true)
             {
                 Console.WriteLine("Awaiting serial line...");
-                String serialCommand = port.ReadLine();
-                Console.WriteLine($"Got: \"{serialCommand}\"");
-                
-                if (!isConnected) break;
-                Action a = () => analyzeCommand(serialCommand);
-                if (InvokeRequired)
-                    Invoke(a);
-                else
-                    a();
+                try
+                {
+                    String serialCommand = port.ReadLine();
+                    Console.WriteLine($"Got: \"{serialCommand}\"");
+
+                    if (!isConnected) break;
+                    Action a = () => analyzeCommand(serialCommand);
+                    if (InvokeRequired)
+                        Invoke(a);
+                    else
+                        a();
+                }
+                catch (System.IO.IOException e)
+                {
+                    Console.WriteLine("Got exception listening to port, oopsie");
+                    break;
+                }
             }
         }
 
@@ -217,14 +223,27 @@ namespace BlackBox
             }
             else if (serialCommand == "service?")
             {
+                openRFIDform.Hide();
                 TitleAddForm openTitleform = new TitleAddForm(this);
                 openTitleform.StartPosition = FormStartPosition.CenterScreen;
                 openTitleform.Show();
             }
+            else if (serialCommand == "servicefail")
+            {
+                MessageBox.Show("Something went wrong during service creation. Is your password correct?", "Oops!");
+            }
             else if (serialCommand.StartsWith("service"))
             {
-                string serviceText = serialCommand.Substring(8);
-                // send serviceText to show in combobox
+                string serviceTitle = serialCommand.Substring(0, serialCommand.IndexOf(':'));
+                serviceTitle = serviceTitle.Replace('_', ' ');
+                string serviceUrl = serialCommand.Substring(serialCommand.IndexOf(':') + 1, serialCommand.IndexOf(' '));
+
+
+                ListViewItem item1 = new ListViewItem(serviceTitle);
+                item1.SubItems.Add("");
+                item1.SubItems.Add(serviceUrl);
+
+                listView1.Items.AddRange(new ListViewItem[] { item1 });
             }
             /*else if (serialCommand == "userlogin")
             {
@@ -249,10 +268,11 @@ namespace BlackBox
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (isConnected)
-           {
+            if (isConnected) 
+            {
                writeToSerial("addService\n");
-           }
+               listView1.Items.Clear();
+            }
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -274,12 +294,14 @@ namespace BlackBox
             foreach (string portName in ports) {
                 try
                 {
+                    Console.WriteLine($"Trying to connect to {portName}");
                     if (connectToArduino(portName))
                     {
+                        Console.WriteLine("Success");
                         port.Write("ping_blackbox\n");
                         // string response = port.ReadLine();
                         // await Task.Run( () => Thread.Sleep(2000) );
-                        Thread.Sleep(200);
+                        Thread.Sleep(500);
                         Console.WriteLine("Done waiting");
     
                         Console.WriteLine(port.BytesToRead);
@@ -299,11 +321,17 @@ namespace BlackBox
                                 return;
                             }
                         }
+                        Console.WriteLine("k1");
+
                     }
+                    Console.WriteLine("k2");
+
 
                     disconnectFromArduino();
+                    Console.WriteLine("k2");
+
                 }
-                catch(Exception ex) {
+                catch (Exception ex) {
                     Console.WriteLine($"{portName} just died");
                     Console.WriteLine(ex);
                 }; 
@@ -319,7 +347,8 @@ namespace BlackBox
         {
             if (isConnected)
             {
-                writeToSerial("username\n");
+                writeToSerial("userlogin\n");
+
             }
         }
 
