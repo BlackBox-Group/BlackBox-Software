@@ -37,7 +37,7 @@ namespace BlackBox
 
         private void button2_Click(object sender, EventArgs e)
         {
-            parent.writeToSerial($"password {passname}\n");
+            parent.writeToSerial($"password {passname.Replace(' ', '_')}\n");
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
