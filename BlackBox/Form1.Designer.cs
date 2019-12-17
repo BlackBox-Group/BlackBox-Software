@@ -33,6 +33,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button6 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -41,7 +42,7 @@
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label1 = new System.Windows.Forms.Label();
-            this.button6 = new System.Windows.Forms.Button();
+            this.nicknameLabel = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -100,6 +101,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
+            // button6
+            // 
+            this.button6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button6.Location = new System.Drawing.Point(686, 15);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(160, 33);
+            this.button6.TabIndex = 14;
+            this.button6.Text = "Reset cards";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // button5
             // 
             this.button5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -107,7 +119,7 @@
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(160, 33);
             this.button5.TabIndex = 13;
-            this.button5.Text = "Login";
+            this.button5.Text = "Log in";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -175,22 +187,25 @@
             this.label1.Text = "Welcome to the BlackBox";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
-            // button6
+            // nicknameLabel
             // 
-            this.button6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button6.Location = new System.Drawing.Point(686, 15);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(160, 33);
-            this.button6.TabIndex = 14;
-            this.button6.Text = "Reset cards";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.nicknameLabel.AutoSize = true;
+            this.nicknameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nicknameLabel.Location = new System.Drawing.Point(24, 173);
+            this.nicknameLabel.MaximumSize = new System.Drawing.Size(200, 0);
+            this.nicknameLabel.MinimumSize = new System.Drawing.Size(200, 0);
+            this.nicknameLabel.Name = "nicknameLabel";
+            this.nicknameLabel.Size = new System.Drawing.Size(200, 29);
+            this.nicknameLabel.TabIndex = 15;
+            this.nicknameLabel.Text = "Please, log in";
+            this.nicknameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(876, 518);
+            this.Controls.Add(this.nicknameLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.groupBox2);
@@ -221,6 +236,7 @@
         public System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Label nicknameLabel;
     }
 }
 

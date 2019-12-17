@@ -67,7 +67,7 @@ namespace BlackBox
             titleText = titleText.Replace(' ', '_');
             parent.writeToSerial($"service {titleText}:{URLText} {passwordText}\n");
             
-           if ((textBox1.Text.Length > 0) && (textBox2.Text.Length > 0) && (textBox3.Text.Length > 0))
+           /*if ((textBox1.Text.Length > 0) && (textBox2.Text.Length > 0) && (textBox3.Text.Length > 0))
             {
                 ListViewItem item1 = new ListViewItem(textBox1.Text);
                 // item1.SubItems.Add(textBox2.Text);
@@ -75,7 +75,7 @@ namespace BlackBox
                 item1.SubItems.Add(textBox3.Text);
 
                 parent.listView1.Items.AddRange(new ListViewItem[] { item1 });
-            }
+            }*/
             Close();
         }
 

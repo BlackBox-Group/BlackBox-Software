@@ -111,7 +111,11 @@ namespace BlackBox
 
         private bool disconnectFromArduino()
         {
-            if (!isConnected) return false;
+            if (!port.IsOpen)
+            {
+                isConnected = false;
+                return false;
+            }
 
             port.Write("#STOP\n");
             port.Close();
@@ -209,8 +213,9 @@ namespace BlackBox
             }
             else if (serialCommand.StartsWith("username"))
             {
-                usernameText = serialCommand.Substring(9);
-                // send usernameText to show in label "Welcome to the BlackBox, "
+                openRFIDform.Close();
+                string username = serialCommand.Substring(serialCommand.IndexOf(' ') + 1);
+                nicknameLabel.Text = username;
             }
             
             else if (serialCommand == "masterincorrect")
@@ -234,9 +239,10 @@ namespace BlackBox
             }
             else if (serialCommand.StartsWith("service"))
             {
-                string serviceTitle = serialCommand.Substring(0, serialCommand.IndexOf(':'));
+                //openRFIDform.Hide();
+                string serviceTitle = serialCommand.Substring(serialCommand.IndexOf(' '), serialCommand.IndexOf(':') - serialCommand.IndexOf(' '));
                 serviceTitle = serviceTitle.Replace('_', ' ');
-                string serviceUrl = serialCommand.Substring(serialCommand.IndexOf(':') + 1, serialCommand.IndexOf(' '));
+                string serviceUrl = serialCommand.Substring(serialCommand.IndexOf(':') + 1);
 
 
                 ListViewItem item1 = new ListViewItem(serviceTitle);
@@ -244,6 +250,10 @@ namespace BlackBox
                 item1.SubItems.Add(serviceUrl);
 
                 listView1.Items.AddRange(new ListViewItem[] { item1 });
+            }
+            else if (serialCommand == "loginfail")
+            {
+                MessageBox.Show("Something went wrong during login. Is your password correct?", "Oops!");
             }
             /*else if (serialCommand == "userlogin")
             {
@@ -271,7 +281,7 @@ namespace BlackBox
             if (isConnected) 
             {
                writeToSerial("addService\n");
-               listView1.Items.Clear();
+               //listView1.Items.Clear();
             }
         }
         private void Form1_Load(object sender, EventArgs e)
@@ -345,11 +355,8 @@ namespace BlackBox
 
         private void button5_Click(object sender, EventArgs e)
         {
-            if (isConnected)
-            {
-                writeToSerial("userlogin\n");
-
-            }
+            writeToSerial("userlogin\n");
+            listView1.Items.Clear();
         }
 
         public void listView1_SelectedIndexChanged(object sender, EventArgs e)
